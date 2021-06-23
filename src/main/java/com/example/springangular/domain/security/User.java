@@ -50,7 +50,7 @@ public class User implements Serializable {
 
     private boolean isActive;
 
-    private boolean inNotLocked;
+    private boolean isNotLocked;
 
     @Override
     public boolean equals(Object o) {
