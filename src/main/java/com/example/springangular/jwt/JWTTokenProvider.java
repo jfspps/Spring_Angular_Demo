@@ -30,6 +30,10 @@ public class JWTTokenProvider {
     // for documentation, see https://github.com/auth0/java-jwt
     // and https://auth0.com/docs/tokens/json-web-tokens
 
+    // Header: metadata about the type of token (JWT) and the cryptographic algorithms
+    // Payload: (set of claims) contains verifiable security statements, such as the identity of the user and their permissions
+    // Signature: used to validate that the token is trustworthy and has not been tampered with
+
     // usually have this as part of a config file at deployment
     // (currently retrieved from application.properties)
     @Value("${jwt.secret}")
