@@ -16,7 +16,7 @@ import java.util.Date;
 
 @Service
 @Transactional      // manage propagating operations per transaction
-@Qualifier("UserDetailsService")
+@Qualifier("UserDetailsService")        // force Spring to use this class; see SecurityConfiguration
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     // get this class, UserServiceImpl
