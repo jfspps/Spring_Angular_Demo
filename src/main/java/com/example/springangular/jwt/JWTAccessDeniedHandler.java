@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.Locale;
 
 import static com.example.springangular.constants.SecurityConstant.ACCESS_DENIED_MESSAGE;
@@ -26,7 +27,8 @@ public class JWTAccessDeniedHandler implements AccessDeniedHandler {
                 HttpStatus.UNAUTHORIZED.value(),
                 HttpStatus.UNAUTHORIZED,
                 HttpStatus.UNAUTHORIZED.getReasonPhrase().toUpperCase(Locale.ROOT),
-                ACCESS_DENIED_MESSAGE);
+                ACCESS_DENIED_MESSAGE,
+                new Date());
 
         response.setContentType(APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());

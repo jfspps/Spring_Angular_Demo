@@ -29,7 +29,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final JWTAccessDeniedHandler jwtAccessDeniedHandler;
     private final JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final UserDetailsService userDetailsService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -45,12 +44,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public SecurityConfiguration(JWTAuthorisationFilter jwtAuthorisationFilter,
                                  JWTAccessDeniedHandler jwtAccessDeniedHandler,
                                  JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-                                 @Qualifier("UserDetailsService") UserDetailsService userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+                                 @Qualifier("UserDetailsService") UserDetailsService userDetailsService) {
         this.jwtAuthorisationFilter = jwtAuthorisationFilter;
         this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
         this.userDetailsService = userDetailsService;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @Override
@@ -60,6 +58,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
+        // this should be removed at production (csrf disabled for h2-console only)
+        http.authorizeRequests().antMatchers("/h2-console/**").permitAll()
+                .and().csrf().ignoringAntMatchers("/h2-console/**")
+                .and().headers().frameOptions().sameOrigin();
+
         // disable CSRF but enable CORS (restrict which domain can access resources)
         http.csrf()
                 .disable().cors()

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.Locale;
 
 import static com.example.springangular.constants.SecurityConstant.FORBIDDEN_MESSAGE;
@@ -25,7 +26,8 @@ public class JWTAuthenticationEntryPoint extends Http403ForbiddenEntryPoint {
                 HttpStatus.FORBIDDEN.value(),
                 HttpStatus.FORBIDDEN,
                 HttpStatus.FORBIDDEN.getReasonPhrase().toUpperCase(Locale.ROOT),
-                FORBIDDEN_MESSAGE);
+                FORBIDDEN_MESSAGE,
+                new Date());
 
         response.setContentType(APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.FORBIDDEN.value());
