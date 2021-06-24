@@ -1,4 +1,4 @@
-package com.example.springangular.config;
+package com.example.springangular.constants;
 
 public class SecurityConstant {
 
