@@ -11,7 +11,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -29,6 +28,9 @@ import java.util.List;
 @Transactional      // manage propagating operations per transaction
 @Qualifier("UserDetailsService")        // force Spring to use this class; see SecurityConfiguration
 public class UserServiceImpl implements UserService, UserDetailsService {
+
+    public static final String EMAIL_ALREADY_IN_USE = "Email already in use";
+    public static final String USERNAME_ALREADY_IN_USE = "Username already in use";
 
     // get this class, UserServiceImpl
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -85,7 +87,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userRepository.save(user);
         LOGGER.info("New user password: " + password);
 
-        return null;
+        return user;
     }
 
     private String getTempProfileImageURL() {
@@ -109,28 +111,27 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private User validateNewUsernameAndEmail(String currentUsername, String newUsername, String email)
             throws UsernameAlreadyExistException, EmailAlreadyExistException, UserNotFoundException {
+        User userNyNewUsername = findByUsername(newUsername);
+        User userByEmail = findByEmail(email);
+
         if (StringUtils.isNotEmpty(currentUsername)){
             User currentUser = findByUsername(currentUsername);
             if (currentUser == null){
-                throw new UserNotFoundException("New user not found with username: " + currentUsername);
+                throw new UserNotFoundException("User not found with username: " + currentUsername);
             }
-            User userNyNewUsername = findByUsername(newUsername);
             if (userNyNewUsername != null && !currentUser.getUserId().equals(userNyNewUsername.getUserId())){
-                throw new UsernameAlreadyExistException("Username already in use");
+                throw new UsernameAlreadyExistException(USERNAME_ALREADY_IN_USE);
             }
-            User userByEmail = findByEmail(email);
             if (userByEmail != null && !currentUser.getUserId().equals(userByEmail.getUserId())){
-                throw new EmailAlreadyExistException("Email already in use");
+                throw new EmailAlreadyExistException(EMAIL_ALREADY_IN_USE);
             }
             return currentUser;
         } else {
-            User userNyNewUsername = findByUsername(newUsername);
             if (userNyNewUsername != null){
-                throw new UsernameAlreadyExistException("Username already exists");
+                throw new UsernameAlreadyExistException(USERNAME_ALREADY_IN_USE);
             }
-            User userByEmail = findByEmail(email);
             if (userByEmail != null){
-                throw new EmailAlreadyExistException("Email already in use");
+                throw new EmailAlreadyExistException(EMAIL_ALREADY_IN_USE);
             }
             return null;
         }
@@ -138,16 +139,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public List<User> findAllUsers() {
-        return null;
+        return userRepository.findAll();
     }
 
     @Override
     public User findByUsername(String username) {
-        return null;
+        return userRepository.findUserByUsername(username);
     }
 
     @Override
     public User findByEmail(String email) {
-        return null;
+        return userRepository.findUserByEmail(email);
     }
 }
