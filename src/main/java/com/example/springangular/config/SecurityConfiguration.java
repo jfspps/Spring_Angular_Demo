@@ -18,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static com.example.springangular.constants.SecurityConstant.ALLOW_ALL_URLS;
 import static com.example.springangular.constants.SecurityConstant.PUBLIC_URLS;
 
 @Configuration
