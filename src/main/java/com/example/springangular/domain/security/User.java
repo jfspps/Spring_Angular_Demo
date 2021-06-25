@@ -43,7 +43,7 @@ public class User implements Serializable {
     private Date joinDate;
 
     // probably not advised but try it without referencing other tables....
-    private String[] roles; // user categories
+    private String role; // user categories
 
     private String[] authorities;   // aka permissions (CRUD)
 
