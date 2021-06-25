@@ -13,4 +13,10 @@ public class UserController extends ExceptionHandling {
     public String confirmMsg() {
         return "It works";
     }
+
+    // test exception handling
+//    @GetMapping("/getEmails")
+//    public String getEmails() throws EmailNotFoundException {
+//        throw new EmailNotFoundException("Whoops");
+//    }
 }
