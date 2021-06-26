@@ -14,7 +14,7 @@ public class LoginAttemptService {
     public static final int MAXIMUM_LOGIN_ATTEMPTS = 5;
     public static final int ATTEMPT_INCREMENT = 1;
 
-    private LoadingCache<String, Integer> loginAttemptCache;
+    private final LoadingCache<String, Integer> loginAttemptCache;
 
     public LoginAttemptService() {
         super();
