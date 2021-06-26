@@ -62,6 +62,7 @@ public class UserController extends ExceptionHandling {
 
         HttpHeaders jwtHeader = getJwtHeader(userPrincipal);
 
+        // send the jwt in the header and the user details in the body
         return new ResponseEntity<>(loggedInUser, jwtHeader, HttpStatus.OK);
     }
 
