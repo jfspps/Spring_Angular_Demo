@@ -39,8 +39,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public UserServiceImpl(UserRepository userRepository) {
+    private final LoginAttemptService loginAttemptService;
+
+    public UserServiceImpl(UserRepository userRepository, LoginAttemptService loginAttemptService) {
         this.userRepository = userRepository;
+        this.loginAttemptService = loginAttemptService;
     }
 
     @Override
@@ -51,6 +54,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             LOGGER.error("User not found with username: " + username);
             throw new UsernameNotFoundException("User not found with username: " + username);
         } else {
+            validateLoginAttempts(user);
             user.setLastLoginDateDisplay(user.getLastLoginDate());
 
             user.setLastLoginDate(new Date());
@@ -88,6 +92,29 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         LOGGER.info("New user password: " + password);
 
         return user;
+    }
+
+    @Override
+    public List<User> findAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        return userRepository.findUserByUsername(username);
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findUserByEmail(email);
+    }
+
+    private void validateLoginAttempts(User user) {
+        if (user.isNotLocked()){
+            user.setNotLocked(!loginAttemptService.hasExceededMaxAttempts(user.getUsername()));
+        } else {
+            loginAttemptService.releaseUserFromCache(user.getUsername());
+        }
     }
 
     private String getTempProfileImageURL() {
@@ -135,20 +162,5 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             }
             return null;
         }
-    }
-
-    @Override
-    public List<User> findAllUsers() {
-        return userRepository.findAll();
-    }
-
-    @Override
-    public User findByUsername(String username) {
-        return userRepository.findUserByUsername(username);
-    }
-
-    @Override
-    public User findByEmail(String email) {
-        return userRepository.findUserByEmail(email);
     }
 }

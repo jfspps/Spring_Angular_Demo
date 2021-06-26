@@ -32,12 +32,22 @@ public class LoginAttemptService {
         loginAttemptCache.invalidate(username);
     }
 
-    public void addUserToCache(String username) throws ExecutionException {
-        int attempts = loginAttemptCache.get(username) + ATTEMPT_INCREMENT;
+    public void addUserToCache(String username) {
+        int attempts = 0;
+        try {
+            attempts = loginAttemptCache.get(username) + ATTEMPT_INCREMENT;
+        } catch (ExecutionException exception) {
+            exception.printStackTrace();
+        }
         loginAttemptCache.put(username, attempts);
     }
 
-    public boolean hasExceededMaxAttempts(String username) throws ExecutionException {
-        return loginAttemptCache.get(username) >= MAXIMUM_LOGIN_ATTEMPTS;
+    public boolean hasExceededMaxAttempts(String username) {
+        try {
+            return loginAttemptCache.get(username) >= MAXIMUM_LOGIN_ATTEMPTS;
+        } catch (ExecutionException exception) {
+            exception.printStackTrace();
+            return false;
+        }
     }
 }
