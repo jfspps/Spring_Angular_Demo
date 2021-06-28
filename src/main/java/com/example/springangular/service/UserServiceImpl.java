@@ -26,6 +26,8 @@ import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 
+import static com.example.springangular.constants.FileConstant.DEFAULT_USER_IMAGE_PATH;
+
 @Service
 @Transactional      // manage propagating operations per transaction
 @Qualifier("UserDetailsService")        // force Spring to use this class; see SecurityConfiguration
@@ -91,7 +93,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setNotLocked(true);
         user.setRole(Role.ROLE_USER.name());
         user.setAuthorities(Role.ROLE_USER.getAuthorities());
-        user.setProfileImageUrl(getTempProfileImageURL());
+        user.setProfileImageUrl(getTempProfileImageURL(username));
 
         userRepository.save(user);
 //        LOGGER.info("New user password: " + password);
@@ -115,8 +117,30 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User addNewUser(String firstName, String lastName, String username, String email, String role, boolean isNonLocked, boolean isActive, MultipartFile profileImage) {
-        return null;
+    public User addNewUser(String firstName, String lastName, String username, String email, String role, boolean isNonLocked, boolean isActive, MultipartFile profileImage) throws UserNotFoundException, EmailAlreadyExistException, UsernameAlreadyExistException {
+        validateNewUsernameAndEmail(StringUtils.EMPTY, username, email);
+        User user = new User();
+
+        String password = generatePassword();
+        String encodedPassword = encodePassword(password);
+
+        user.setUserId(generateUserId());
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setJoinDate(new Date());
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword(encodedPassword);
+        user.setActive(isActive);
+        user.setNotLocked(isNonLocked);
+        user.setRole(getRoleEnumName(role).name());
+        user.setAuthorities(getRoleEnumName(role).getAuthorities());
+        user.setProfileImageUrl(getTempProfileImageURL(username));
+        userRepository.save(user);
+
+        saveProfileImage(user, profileImage);
+
+        return user;
     }
 
     @Override
@@ -139,6 +163,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return null;
     }
 
+    private void saveProfileImage(User user, MultipartFile profileImage) {
+    }
+
+    private Role getRoleEnumName(String role) {
+        return null;
+    }
+
     private void validateLoginAttempts(User user) {
         if (user.isNotLocked()){
             user.setNotLocked(!loginAttemptService.hasExceededMaxAttempts(user.getUsername()));
@@ -147,9 +178,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
-    private String getTempProfileImageURL() {
+    private String getTempProfileImageURL(String username) {
         // http://localhost:8081 fromCurrentContextPath
-        return ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/image/profile/temp").toString();
+        return ServletUriComponentsBuilder.fromCurrentContextPath().path(DEFAULT_USER_IMAGE_PATH + username).toString();
     }
 
     private String encodePassword(String password) {

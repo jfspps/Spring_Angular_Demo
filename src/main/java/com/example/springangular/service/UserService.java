@@ -23,7 +23,7 @@ public interface UserService {
       */
     User addNewUser(String firstName, String lastName, String username,
                     String email, String role, boolean isNonLocked, boolean isActive,
-                    MultipartFile profileImage);
+                    MultipartFile profileImage) throws UserNotFoundException, EmailAlreadyExistException, UsernameAlreadyExistException;
 
     /**
      * Update a user as a logged in admin user
