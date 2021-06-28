@@ -4,6 +4,7 @@ import com.example.springangular.domain.security.User;
 import com.example.springangular.domain.security.UserPrincipal;
 import com.example.springangular.enums.Role;
 import com.example.springangular.exception.domain.EmailAlreadyExistException;
+import com.example.springangular.exception.domain.EmailNotFoundException;
 import com.example.springangular.exception.domain.UserNotFoundException;
 import com.example.springangular.exception.domain.UsernameAlreadyExistException;
 import com.example.springangular.repository.UserRepository;
@@ -35,6 +36,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     public static final String EMAIL_ALREADY_IN_USE = "Email already in use";
     public static final String USERNAME_ALREADY_IN_USE = "Username already in use";
+    private static final String NO_USER_FOUND_BY_EMAIL = "No user found with given email: ";
 
     // get this class, UserServiceImpl
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -144,23 +146,45 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User updateUser(String currentUsername, String newFirstName, String newLastName, String newUsername, String newEmail, String role, boolean isNonLocked, boolean isActive, MultipartFile profileImage) {
-        return null;
+    public User updateUser(String currentUsername, String newFirstName, String newLastName, String newUsername, String newEmail, String role, boolean isNonLocked, boolean isActive, MultipartFile profileImage) throws UserNotFoundException, EmailAlreadyExistException, UsernameAlreadyExistException {
+        User currentUser = validateNewUsernameAndEmail(currentUsername, newUsername, newEmail);
+
+        currentUser.setFirstName(newFirstName);
+        currentUser.setLastName(newLastName);
+        currentUser.setUsername(newUsername);
+        currentUser.setEmail(newEmail);
+        currentUser.setActive(isActive);
+        currentUser.setNotLocked(isNonLocked);
+        currentUser.setRole(getRoleEnumName(role).name());
+        userRepository.save(currentUser);
+
+        saveProfileImage(currentUser, profileImage);
+
+        return currentUser;
     }
 
     @Override
     public void deleteUserById(long id) {
-
+        userRepository.deleteById(id);
     }
 
     @Override
-    public void resetPassword(String email) {
-
+    public void resetPassword(String email) throws EmailNotFoundException, MessagingException {
+        User userFound = userRepository.findUserByEmail(email);
+        if (userFound == null){
+            throw new EmailNotFoundException(NO_USER_FOUND_BY_EMAIL + email);
+        }
+        String password = generatePassword();
+        userFound.setPassword(encodePassword(password));
+        userRepository.save(userFound);
+        emailService.sendNewPasswordEmail(userFound.getFirstName(), password, userFound.getEmail());
     }
 
     @Override
-    public User updateProfileImage(String username, MultipartFile image) {
-        return null;
+    public User updateProfileImage(String username, MultipartFile image) throws UserNotFoundException, EmailAlreadyExistException, UsernameAlreadyExistException {
+        User user = validateNewUsernameAndEmail(username, null, null);
+        saveProfileImage(user, image);
+        return user;
     }
 
     private void saveProfileImage(User user, MultipartFile profileImage) {

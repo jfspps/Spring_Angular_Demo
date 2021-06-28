@@ -2,6 +2,7 @@ package com.example.springangular.service;
 
 import com.example.springangular.domain.security.User;
 import com.example.springangular.exception.domain.EmailAlreadyExistException;
+import com.example.springangular.exception.domain.EmailNotFoundException;
 import com.example.springangular.exception.domain.UserNotFoundException;
 import com.example.springangular.exception.domain.UsernameAlreadyExistException;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,11 +31,11 @@ public interface UserService {
      */
     User updateUser(String currentUsername, String newFirstName, String newLastName, String newUsername,
                     String newEmail, String role, boolean isNonLocked, boolean isActive,
-                    MultipartFile profileImage);
+                    MultipartFile profileImage) throws UserNotFoundException, EmailAlreadyExistException, UsernameAlreadyExistException;
 
     void deleteUserById(long id);
 
-    void resetPassword(String email);
+    void resetPassword(String email) throws EmailNotFoundException, MessagingException;
 
-    User updateProfileImage(String username, MultipartFile image);
+    User updateProfileImage(String username, MultipartFile image) throws UserNotFoundException, EmailAlreadyExistException, UsernameAlreadyExistException;
 }
