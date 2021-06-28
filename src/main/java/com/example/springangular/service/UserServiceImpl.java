@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
@@ -41,9 +42,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final LoginAttemptService loginAttemptService;
 
-    public UserServiceImpl(UserRepository userRepository, LoginAttemptService loginAttemptService) {
+    private final EmailService emailService;
+
+    public UserServiceImpl(UserRepository userRepository, LoginAttemptService loginAttemptService, EmailService emailService) {
         this.userRepository = userRepository;
         this.loginAttemptService = loginAttemptService;
+        this.emailService = emailService;
     }
 
     @Override
@@ -68,7 +72,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User register(String firstName, String lastName, String username, String email)
-            throws UserNotFoundException, EmailAlreadyExistException, UsernameAlreadyExistException {
+            throws UserNotFoundException, EmailAlreadyExistException, UsernameAlreadyExistException, MessagingException {
         validateNewUsernameAndEmail(StringUtils.EMPTY, username, email);
 
         User user = User.builder().userId(generateUserId()).build();
@@ -89,8 +93,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setProfileImageUrl(getTempProfileImageURL());
 
         userRepository.save(user);
-        LOGGER.info("New user password: " + password);
-
+//        LOGGER.info("New user password: " + password);
+        emailService.sendNewPasswordEmail(firstName, password, email);
         return user;
     }
 

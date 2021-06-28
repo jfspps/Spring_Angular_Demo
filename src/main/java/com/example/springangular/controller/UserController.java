@@ -15,6 +15,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+
 import static com.example.springangular.constants.SecurityConstant.JWT_TOKEN_HEADER;
 
 @RestController
@@ -44,7 +46,7 @@ public class UserController extends ExceptionHandling {
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user)
-            throws UserNotFoundException, EmailAlreadyExistException, UsernameAlreadyExistException {
+            throws UserNotFoundException, EmailAlreadyExistException, UsernameAlreadyExistException, MessagingException {
         User sentUser = userService.register(user.getFirstName(),
                 user.getLastName(),
                 user.getUsername(),

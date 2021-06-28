@@ -3,8 +3,8 @@ package com.example.springangular.constants;
 public class EmailConstant {
 
     public static final String SIMPLE_MAIL_TRANSFER_PROTOCOL = "smtps";
-    public static final String USERNAME = "yourEmailAddress@gmail.com";
-    public static final String PASSWORD = "passwordHere";
+    public static final String USERNAME = "jfsppsDev@gmail.com";
+    public static final String PASSWORD = "freeforY86";
     public static final String FROM_EMAIL = "support@someCompany.com";
     public static final String CC_EMAIL = "";
     public static final String EMAIL_SUBJECT = "Some Company Inc. - new password";
