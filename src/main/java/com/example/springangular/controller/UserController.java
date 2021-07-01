@@ -13,6 +13,7 @@ import com.example.springangular.service.UserService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
@@ -116,14 +117,12 @@ public class UserController extends ExceptionHandling {
     @GetMapping("/find/{username}")
     public ResponseEntity<User> findByUsername(@PathVariable("username") String username){
         User user = userService.findByUsername(username);
-
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @GetMapping("/list")
     public ResponseEntity<List<User>> findByUsername(){
         List<User> users = userService.findAllUsers();
-
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
@@ -131,12 +130,29 @@ public class UserController extends ExceptionHandling {
     public ResponseEntity<HttpResponse> resetPassword(@PathVariable("email") String email)
             throws EmailNotFoundException, MessagingException {
         userService.resetPassword(email);
-
         return response(HttpStatus.OK, "New password sent to: " + email);
     }
 
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('user:delete')")
+    public ResponseEntity<HttpResponse> deleteUser(@PathVariable("id") String id){
+        userService.deleteUserById(Long.parseLong(id));
+        return response(HttpStatus.NO_CONTENT, "User removed from the database");
+    }
+
+    @PostMapping("/updateProfileImage")
+    public ResponseEntity<User> updateProfileImage(
+                                           @RequestParam("username") String username,
+                                           @RequestParam("profileImage") MultipartFile profileImage)
+            throws UserNotFoundException, IOException, EmailAlreadyExistException, UsernameAlreadyExistException {
+
+        User user = userService.updateProfileImage(username, profileImage);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
     private ResponseEntity<HttpResponse> response(HttpStatus status, String message) {
-        return null;
+        // first parameter is the httpResponse body
+        return new ResponseEntity<>(new HttpResponse(status.value(), status, status.getReasonPhrase(), message), status);
     }
 
     private HttpHeaders getJwtHeader(UserPrincipal userPrincipal) {
